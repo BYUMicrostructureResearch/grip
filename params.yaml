@@ -1,5 +1,6 @@
 # Input data for the GRand canonical Interface Predictor (GRIP). Format is YAML.
 # UNITS: Length [=] Angstrom, Temperature [=] Kelvin.
+# See the utils/ folder for a visual definition of some parameters.
 
 # Parameters for the sampling algorithm
 algo:
@@ -36,7 +37,7 @@ algo:
     clear_freq: 50          # Number of iterations before clearing duplicates. Set 0 to never clear.
 
 
-# Parameters for the material
+# Parameters for the material, may be potential dependent
 struct:
     user: False             # True: read existing cells (POSCAR_*), False: generate w/ ase.
     cutoff: 35              # Max height to cut slabs if user=False to speed up calcs. Set to 0 to ignore.
