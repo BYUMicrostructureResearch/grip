@@ -73,12 +73,12 @@ def get_inputs(input_data: str = "params.yaml", debug: bool = False) -> Tuple[di
             print("Warning: Supplied Ecoh was positive! Double check?")
 
         for i in range(3):
-            assert isinstance(struct["size0"][i], int) and struct["size0"][i] > 0, \
+            assert isinstance(struct["size_min"][i], int) and struct["size_min"][i] > 0, \
                    f"Minimum replications in dim {i} must be integer >= 1."
-            assert isinstance(struct["size"][i], int) and struct["size"][i] > 0, \
+            assert isinstance(struct["size_max"][i], int) and struct["size_max"][i] > 0, \
                    f"Number of replications in dim {i} must be integer >= 1."
-            assert struct["size0"][i] <= struct["size"][i], \
-                   f"size0 in dim {i} cannot be larger than size!"
+            assert struct["size_min"][i] <= struct["size_max"][i], \
+                   f"size_min in dim {i} cannot be larger than size_max!"
 
         assert struct["reps"] in [1, 2, 3, 4], \
             f"Repetitions flag {struct['reps']} not yet supported! Choose from [1, 2, 3, 4]."
@@ -163,7 +163,7 @@ def make_crystals(struct: dict, debug: bool = False) -> Tuple[Lattice, Lattice, 
         Tuple[Lattice, Lattice, float]: The lower and upper slabs, respectively.
         Also returns the minimum normal component of a lattice vector.
     """
-    init_size = (1, 1, struct["size"][2])
+    init_size = (1, 1, struct["size_max"][2])
     if struct["user"]:
         upper_crystal = ase.io.read("POSCAR_UPPER", format="vasp")
         lower_crystal = ase.io.read("POSCAR_LOWER", format="vasp")
@@ -308,10 +308,10 @@ def compute_weights(struct: dict) -> dict:
     Returns:
         weights (dict): Dictionary of weights for sampling repetitions.
     """
-    nx = np.arange(struct["size0"][0], struct["size"][0] + 1)
-    ny = np.arange(struct["size0"][1], struct["size"][1] + 1)
-    nnx = struct["size"][0] - struct["size0"][0] + 1
-    nny = struct["size"][1] - struct["size0"][1] + 1
+    nx = np.arange(struct["size_min"][0], struct["size_max"][0] + 1)
+    ny = np.arange(struct["size_min"][1], struct["size_max"][1] + 1)
+    nnx = struct["size_max"][0] - struct["size_min"][0] + 1
+    nny = struct["size_max"][1] - struct["size_min"][1] + 1
     if struct["reps"] == 1:   # sample exact replications
         wx = np.zeros(nnx)
         wx[-1] = 1

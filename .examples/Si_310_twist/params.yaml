@@ -40,8 +40,8 @@ struct:
     user: False             # True: read existing cells (POSCAR_*), False: generate w/ ase.
     cutoff: 35              # Max height (A) to cut slabs if user=False; speed up calcs. Set to 0 to ignore.
     write: True             # Write generated cells to POSCAR_*
-    size0: [1, 1, 1]        # Minimum replications in [x, y, z] to create supercells.
-    size: [2, 2, 15]        # Replications in [x, y, z] to create supercells. z is not used if user=True.
+    size_min: [1, 1, 1]        # Minimum replications in [x, y, z] to create supercells.
+    size_max: [2, 2, 15]        # Replications in [x, y, z] to create supercells. z is not used if user=True.
     reps: 2                 # Sample replications (1) exactly, (2) uniform, (3) weighted smaller, (4) weighted larger.
 
     # Basic info - potential dependent!
