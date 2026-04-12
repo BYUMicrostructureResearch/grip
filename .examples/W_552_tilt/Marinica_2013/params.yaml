@@ -33,6 +33,7 @@ algo:
     Emult: 2                # Maximum energy threshold * Egb_min to keep; at least 1.0.
     nruns: 0                # Number of iterations in total (each processor). Set 0 for infinite loop.
     clear_freq: 50          # Number of iterations before clearing duplicates. Set 0 to never clear.
+    max_files:   0          # Number of total structures to save (for limited disk space). Set 0 for no limit.
 
 
 # Parameters for the material

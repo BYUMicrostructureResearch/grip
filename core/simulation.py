@@ -24,6 +24,8 @@ class Simulation():
 
         clear_freq (int): Number of iterations before clearing duplicates.
 
+        max_files (int): Number of structures to save in total.
+
         counter (int): Counter for tracking when to clear duplicates.
 
         best_Egb (float): Best GB energy value found so far.
@@ -94,6 +96,7 @@ class Simulation():
         self.best_Egb = 1000
         self.nruns = algo["nruns"]
         self.clear_freq = algo["clear_freq"]
+        self.max_files = algo["max_files"]
 
         self.lmp = algo["lammps_bin"]
         self.md_run = algo["MD_run"]
@@ -315,11 +318,22 @@ class Simulation():
                       f"{os.path.join(best_dir, fname2best)}")
 
             # Periodically remove duplicate structures
-            if self.clear_freq:
-                if len(os.listdir(best_dir)) > 4000:
+            if self.clear_freq and self.counter % self.clear_freq == 0:
+                # likely way too many to be useful
+                if len(os.listdir(best_dir)) > 5000:
                     print(f"Clearing highest energy from {best_dir} now\n")
                     clear_best(best_dir, extra=True, alpha=0.5)
-                elif self.counter % self.clear_freq == 0:
+                # routine clearing
+                else:
                     print(f"Clearing {best_dir} now\n")
                     clear_best(best_dir)
 
+                # exceeds user threshold
+                if self.max_files and len(os.listdir(best_dir)) > self.max_files:
+                    files = sorted([x for x in os.listdir(best_dir) if x.startswith('lammps_')],
+                                    key=lambda x: float(x.split('_')[1]))
+                    for ff in files[self.max_files:]:
+                        try:
+                            os.remove(os.path.join(best_dir, ff))
+                        except FileNotFoundError:
+                            pass
