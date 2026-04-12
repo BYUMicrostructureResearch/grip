@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from ase.io.lammpsrun import read_lammps_dump
 from ase.visualize.plot import plot_atoms
@@ -41,7 +42,7 @@ def make_plot(dir_best: str = "best", Emax: float = 0.0, hide: bool = False) -> 
         plt.show()
 
 
-def view_struct(filename: str) -> None:
+def view_struct(filename: str, color: bool = False) -> None:
     """
     Use ASE and Matplotlib to visualize a GB structure.
 
@@ -52,8 +53,17 @@ def view_struct(filename: str) -> None:
     zmid = np.mean([min(s.positions[:,2]), max(s.positions[:,2])])
     gb_thick = 20
 
+    if color:
+        eng = s.arrays['c_eng']
+        eng2 = eng[(s.positions[:,2] > zmid - gb_thick) & (s.positions[:,2] < zmid + gb_thick)]
+        norm = mpl.colors.Normalize(vmin=eng2.min(), vmax=eng2.max())
+        cmap = plt.get_cmap('viridis')
+        colors = cmap(norm(eng))
+    else:
+        colors = None
+
     fig, ax = plt.subplots(figsize=(7,7))
-    plot_atoms(atoms=s, ax=ax, radii=1.6, rotation=("90x,0y,0z"))
+    plot_atoms(atoms=s, ax=ax, radii=1.6, rotation=("90x,0y,0z"), colors=colors)
     ax.set_ylim(zmid - gb_thick, zmid + gb_thick)
     ax.set_axis_off()
     plt.tight_layout()
@@ -72,16 +82,19 @@ if __name__ == "__main__":
                         help="Remove additional higher energy structs.")
     parser.add_argument("--file", type=str, default="",
                         help="View a structure instead of the GCO plot.")
+    parser.add_argument("--color", action="store_true",
+                        help="Color the atoms based on per-atom energies.")
     args = parser.parse_args()
     dir_best = args.folder
     Emax = args.Emax
     hide = args.silent
     extra = args.extra
     filename = args.file
+    color = args.color
 
     clear_best(dir_best, extra, save=True)
 
     if filename:
-        view_struct(filename)
+        view_struct(filename, color)
     else:
         make_plot(dir_best, Emax, hide)
